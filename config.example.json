@@ -1,0 +1,14 @@
+{
+	"port": 9090,
+	"node": "192.168.1.1:9305",
+	"telegram": {
+		"token": "",
+		"chatids": [1234, 124324],
+		"users": {
+			"davideg": "dagide",
+			"tizio": "tizio"
+		}
+	},
+	"accesskey": "lobbykey",
+	"lobby": [ "davideg", "tizio" ]
+}
