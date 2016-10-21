@@ -25,7 +25,7 @@ bot.onText(/\/ping/, function (msg) {
 bot.onText(/\/balance (.+)/, function (msg, params) {
 	var fromId = msg.from.id;
     functions.balance(params[1]).then(function(res) {
-        bot.sendMessage(fromId, res.balance);
+        bot.sendMessage(fromId, "Your balance is actually "+res);
     }, function (err) {
         bot.sendMessage(fromId, "Error, please enter a valid delegate name");
     });
@@ -34,9 +34,11 @@ bot.onText(/\/balance (.+)/, function (msg, params) {
 /**
  * Check delegate rank
  */
-bot.onText(/\/rank (.+)/, function (msg, match) {
-	log.debug('Rank', msg);
-	log.debug('Rank', match[1]);
+bot.onText(/\/rank (.+)/, function (msg, params) {
 	var fromId = msg.from.id;
-	bot.sendMessage(fromId, 'Asking for rank :D');
+    functions.rank(params[1]).then(function(res) {
+        bot.sendMessage(fromId, "Your rank is actually "+res.rate);
+    }, function (err) {
+        bot.sendMessage(fromId, "Error, please enter a valid delegate name");
+    });
 });
