@@ -8,8 +8,5 @@
   },
   "scripts": {
     "start": "nodemon server.js"
-  },
-  "devDependencies": {
-    "nodemon": "^1.11.0"
   }
 }

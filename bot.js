@@ -15,6 +15,7 @@ var bot = new TelegramBot (config.telegram.token, {polling: true});
  * Check bot status
  */
 bot.onText(/\/ping/, function (msg) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
 	var fromId = msg.from.id;
 	bot.sendMessage(fromId, 'Pong :D');
 });
@@ -24,6 +25,7 @@ bot.onText(/\/ping/, function (msg) {
  * Check official blockchain height
  */
 bot.onText(/\/height/, function (msg) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
     var fromId = msg.from.id;
     functions.height().then(function(res) {
         bot.sendMessage(fromId, "The official blockchain height is "+res.height+" by wallet.shiftnrg.org");
@@ -36,6 +38,7 @@ bot.onText(/\/height/, function (msg) {
  * Check delegate balance
  */
 bot.onText(/\/balance (.+)/, function (msg, params) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
 	var fromId = msg.from.id;
     functions.balance(params[1]).then(function(res) {
         bot.sendMessage(fromId, "Your balance is actually "+res);
@@ -48,6 +51,7 @@ bot.onText(/\/balance (.+)/, function (msg, params) {
  * Check delegate rank
  */
 bot.onText(/\/rank (.+)/, function (msg, params) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
 	var fromId = msg.from.id;
     functions.rank(params[1]).then(function(res) {
         bot.sendMessage(fromId, "Your rank is actually "+res.rate);
@@ -60,6 +64,7 @@ bot.onText(/\/rank (.+)/, function (msg, params) {
  * Check node blockchain status
  */
 bot.onText(/\/status (.+)/, function (msg, params) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
     var fromId = msg.from.id;
     functions.status(params[1]).then(function(res) {
         bot.sendMessage(fromId, "Syncing: " + res.syncing + "\nBlocks: " + res.blocks + "\nHeight: " + res.height);

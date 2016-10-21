@@ -6,7 +6,6 @@ var request = require ('request');
 var config = require('./config.json');
 
 var del;
-var defaultNode = "wallet.shiftnrg.org";
 
 /**
  *
@@ -20,13 +19,12 @@ var isDelegate = function (delegate) {
                 var delegates = JSON.parse(body);
                 for (var i = 0; i < delegates.delegates.length; i++) {
                     if (delegate.indexOf (delegates.delegates[i].username) != -1) {
-                        console.log(delegates.delegates[i]);
                         del = delegates.delegates[i];
                         resolve(true);
                     }
                 }
             } else {
-                log.critical("Something went wrong", JSON.stringify(error));
+                console.log("isDelegate: something went wrong with the request\n\n");
             }
             reject(false);
         });
@@ -45,9 +43,9 @@ var checkBalance = function (delegate) {
                 var balance = JSON.parse(body);
                 resolve(balance);
             } else {
-                log.critical("Something went wrong", JSON.stringify(error));
+                console.log("checkBalance: something went wrong with the request\n\n");
+                reject("checkBalance: something went wrong with the request\n\n");
             }
-            reject(false);
         })
     });
 };
@@ -63,23 +61,20 @@ var checkNodeStatus = function (node) {
     return new Promise(function (resolve, reject) {
         if (node.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
             // the ip is valid, so check the status
-            console.log('validIp')
             request('http://' + node + ':9305/api/loader/status/sync',{timeout: 3500}, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    console.log(JSON.parse(body));
                     resolve(JSON.parse(body));
                 } else {
-                    console.log(error);
+                    console.log("checkNodeStatus: there is some kind of problem with the IP\nIP: "+node+"\nError: "+error+"\n\n");
                     reject("There is some kind of problem with your IP");
                 }
             })
         } else {
             // the ip is not valid
-            console.log('notValidIp');
             reject("The IP is not valid");
         }
-    })
-}
+    });
+};
 
 /**
  *
@@ -87,13 +82,10 @@ var checkNodeStatus = function (node) {
  * Check official blockchain height
  */
 var checkOfficialHeight = function() {
-    console.log('checkOfficialHeight');
     return new Promise(function (resolve, reject) {
         request('http://' + config.node + '/api/loader/status/sync', function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                console.log(JSON.parse(body));
                 var status = JSON.parse(body);
-                console.log(status);
                 resolve(status);
             } else {
                 reject("There is some kind of problem with the official node wallet.shiftnrg.org");
@@ -121,11 +113,11 @@ exports.balance = function (delegate) {
                 resolve((Math.floor( (parseFloat(res.balance * Math.pow(10, -8))) * 100)/ 100).toLocaleString());
             }, function (err) {
                 console.log(err);
-                reject(false);
+                reject(err);
             })
         }, function (err) {
             console.log(err);
-            reject(false);
+            reject(err);
         })
     })
 };
