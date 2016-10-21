@@ -66,7 +66,7 @@ var checkNodeStatus = function (node) {
                     resolve(JSON.parse(body));
                 } else {
                     console.log("checkNodeStatus: there is some kind of problem with the IP\nIP: "+node+"\nError: "+error+"\n\n");
-                    reject("There is some kind of problem with your IP");
+                    reject("There is some kind of problem with your IP.\nMaybe access permission.\nAdd my IP in your APIs whitelist.");
                 }
             })
         } else {
