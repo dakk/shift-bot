@@ -48,7 +48,7 @@ var checkBalance = function (delegate) {
                 log.critical("Something went wrong", JSON.stringify(error));
             }
             reject(false);
-        });
+        })
     });
 };
 
@@ -59,12 +59,24 @@ var checkBalance = function (delegate) {
  * Check blockchain statu for a given node
  */
 var checkNodeStatus = function (node) {
+    console.log('checkNodeStatus')
     return new Promise(function (resolve, reject) {
         if (node.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
             // the ip is valid, so check the status
-
+            console.log('validIp')
+            request('http://' + node + ':9305/api/loader/status/sync',{timeout: 3500}, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    console.log(JSON.parse(body));
+                    resolve(JSON.parse(body));
+                } else {
+                    console.log(error);
+                    reject("There is some kind of problem with your IP");
+                }
+            })
         } else {
             // the ip is not valid
+            console.log('notValidIp');
+            reject("The IP is not valid");
         }
     })
 }
@@ -133,9 +145,11 @@ exports.rank = function (delegate) {
 exports.status = function (node) {
     return new Promise(function (resolve, reject) {
         checkNodeStatus(node).then(function (res) {
-
+            console.log(res);
+            resolve(res);
         }, function (err) {
-
+            console.log(err);
+            reject(err);
         });
     });
 };

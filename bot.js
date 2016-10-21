@@ -61,9 +61,9 @@ bot.onText(/\/rank (.+)/, function (msg, params) {
  */
 bot.onText(/\/status (.+)/, function (msg, params) {
     var fromId = msg.from.id;
-    functions.rank(params[1]).then(function(res) {
-        bot.sendMessage(fromId, "Your rank is actually "+res.rate);
+    functions.status(params[1]).then(function(res) {
+        bot.sendMessage(fromId, "Syncing: " + res.syncing + "\nBlocks: " + res.blocks + "\nHeight: " + res.height);
     }, function (err) {
-        bot.sendMessage(fromId, "Error, please enter a valid delegate name");
+        bot.sendMessage(fromId, err);
     });
 });
