@@ -56,9 +56,9 @@ var checkBalance = function (delegate) {
  *
  * @param node
  * @returns {Promise}
- * Check blockchain height from a given node or wallet.shiftnrg.org as default
+ * Check blockchain statu for a given node
  */
-var checkNodeHeight = function (node) {
+var checkNodeStatus = function (node) {
     return new Promise(function (resolve, reject) {
         if (node.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
             // the ip is valid, so check the status
@@ -126,13 +126,17 @@ exports.rank = function (delegate) {
         }, function (err) {
             console.log(err);
             reject(false);
-        })
-    })
+        });
+    });
 };
 
 exports.status = function (node) {
     return new Promise(function (resolve, reject) {
+        checkNodeStatus(node).then(function (res) {
 
-    })
-}
+        }, function (err) {
+
+        });
+    });
+};
 
