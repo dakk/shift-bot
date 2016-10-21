@@ -6,6 +6,7 @@ var request = require ('request');
 var config = require('./config.json');
 
 var del;
+var defaultNode = "wallet.shiftnrg.org";
 
 /**
  *
@@ -19,6 +20,7 @@ var isDelegate = function (delegate) {
                 var delegates = JSON.parse(body);
                 for (var i = 0; i < delegates.delegates.length; i++) {
                     if (delegate.indexOf (delegates.delegates[i].username) != -1) {
+                        console.log(delegates.delegates[i]);
                         del = delegates.delegates[i];
                         resolve(true);
                     }
@@ -50,6 +52,54 @@ var checkBalance = function (delegate) {
     });
 };
 
+/**
+ *
+ * @param node
+ * @returns {Promise}
+ * Check blockchain height from a given node or wallet.shiftnrg.org as default
+ */
+var checkNodeHeight = function (node) {
+    return new Promise(function (resolve, reject) {
+        if (node.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
+            // the ip is valid, so check the status
+
+        } else {
+            // the ip is not valid
+        }
+    })
+}
+
+/**
+ *
+ * @returns {Promise}
+ * Check official blockchain height
+ */
+var checkOfficialHeight = function() {
+    console.log('checkOfficialHeight');
+    return new Promise(function (resolve, reject) {
+        request('http://' + config.node + '/api/loader/status/sync', function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log(JSON.parse(body));
+                var status = JSON.parse(body);
+                console.log(status);
+                resolve(status);
+            } else {
+                reject("There is some kind of problem with the official node wallet.shiftnrg.org");
+            }
+        });
+    });
+};
+
+exports.height = function () {
+    return new Promise(function (resolve, reject) {
+        checkOfficialHeight().then(function (res) {
+            resolve(res);
+        }, function (err) {
+            reject(err);
+        })
+    })
+};
+
 exports.balance = function (delegate) {
     return new Promise(function (resolve, reject) {
         // checking if is a delegate
@@ -79,4 +129,10 @@ exports.rank = function (delegate) {
         })
     })
 };
+
+exports.status = function (node) {
+    return new Promise(function (resolve, reject) {
+
+    })
+}
 

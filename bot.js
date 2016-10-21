@@ -19,6 +19,19 @@ bot.onText(/\/ping/, function (msg) {
 	bot.sendMessage(fromId, 'Pong :D');
 });
 
+
+/**
+ * Check official blockchain height
+ */
+bot.onText(/\/height/, function (msg) {
+    var fromId = msg.from.id;
+    functions.height().then(function(res) {
+        bot.sendMessage(fromId, "The official blockchain height is "+res.height+" by wallet.shiftnrg.org");
+    }, function (err) {
+        bot.sendMessage(fromId, err);
+    });
+});
+
 /**
  * Check delegate balance
  */
@@ -36,6 +49,18 @@ bot.onText(/\/balance (.+)/, function (msg, params) {
  */
 bot.onText(/\/rank (.+)/, function (msg, params) {
 	var fromId = msg.from.id;
+    functions.rank(params[1]).then(function(res) {
+        bot.sendMessage(fromId, "Your rank is actually "+res.rate);
+    }, function (err) {
+        bot.sendMessage(fromId, "Error, please enter a valid delegate name");
+    });
+});
+
+/**
+ * Check node blockchain status
+ */
+bot.onText(/\/status (.+)/, function (msg, params) {
+    var fromId = msg.from.id;
     functions.rank(params[1]).then(function(res) {
         bot.sendMessage(fromId, "Your rank is actually "+res.rate);
     }, function (err) {
