@@ -1,7 +1,6 @@
 "use strict";
-
-var colors 		= require ('colors');
-var morgan		= require ('morgan');
+var colors 	= require ('colors');
+var morgan	= require ('morgan');
 
 colors.enabled = true;
 
