@@ -4,8 +4,41 @@
 var log = require ('./log');
 var request = require ('request');
 var config = require('./config.json');
+var fs = require('fs');
 
 var del;
+var delegateMonitor = {};
+
+/**
+ * Save or load delegate in monitor
+ */
+var saveDelegateMonitor = function () {
+    fs.writeFile('monitor.json', JSON.stringify (delegateMonitor), function (err,data) {});
+};
+var loadDelegateMonitor = function () {
+    try {
+        return JSON.parse (fs.readFileSync('monitor.json', 'utf8'));
+    } catch (e) {
+        return {};
+    }
+};
+
+delegateMonitor = loadDelegateMonitor();
+
+/**
+ *
+ * @param delegate
+ * Check if delegate is in watching
+ */
+var isWatching = function (delegate) {
+    return new Promise(function (resolve, reject) {
+        if(delegate in delegateMonitor) {
+            resolve(true);
+        } else {
+            reject(false);
+        }
+    })
+}
 
 /**
  *
@@ -146,3 +179,37 @@ exports.status = function (node) {
     });
 };
 
+exports.monitoring = function (command, delegate, fromId){
+    return new Promise(function (resolve, reject){
+        if (command == "start" || command == "stop") {
+            isDelegate(delegate).then(function (res) {
+                if(command=="start") {
+                    log.debug("monitoring func: ", "command start");
+                    // check if is already in
+                        isWatching(delegate).then(function (res) {
+                            //if is in --> the watch is already enabled
+                            log.debug("monitoring func: ", "is in, already enabled");
+                        }, function (err) {
+                            //if is not in --> enable the watch
+                            log.debug("monitoring func: ", "is not in, enable");
+                        })
+                } else {
+                    log.debug("monitoring func: ", "command stop");
+                    // check if is already in
+                    isWatching(delegate).then(function (res) {
+                        //if is in --> stop the watch
+                        log.debug("monitoring func: ", "is in stopping");
+                    }, function (err) {
+                        //if is not in --> watch has been never activated
+                        log.debug("monitoring func: ", "watch has been never activated");
+                    })
+                }
+            }, function (err) {
+                reject("Error, please enter a valid delegate name");
+            });
+        } else {
+            log.debug("monitoring func: ", "command rejected");
+            reject("Command rejected.\nYou can only start or stop monitoring your node.")
+        }
+    });
+}

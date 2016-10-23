@@ -2,6 +2,7 @@ var config = require('./config.json');
 var log = require('./log');
 var morgan = require('morgan');
 var functions = require('./functions');
+//var monitor = require('./monitor.json');
 var TelegramBot = require('node-telegram-bot-api');
 
 process.on('uncaughtException', function (err) {
@@ -9,7 +10,6 @@ process.on('uncaughtException', function (err) {
 });
 
 var bot = new TelegramBot (config.telegram.token, {polling: true});
-
 
 /**
  * Check bot status
@@ -72,3 +72,19 @@ bot.onText(/\/status (.+)/, function (msg, params) {
         bot.sendMessage(fromId, err);
     });
 });
+
+/**
+ * Start / stop delegate forging monitoring
+ */
+bot.onText(/\/watch (.+)/, function(msg, params) {
+    console.log("Command: " + msg.text + "\nAsked by: " + msg.from.username + "\nDate: " + msg.date + "\n\n");
+    var fromId = msg.from.id;
+    var command = params[1].split(" ")[0];
+    var delegate = params[1].split(" ")[1];
+    functions.monitoring(command, delegate, fromId).then(function(res) {
+        bot.sendMessage(fromId, res);
+    }, function(err) {
+        console.log(err);
+        bot.sendMessage(fromId, err);
+    });
+})
