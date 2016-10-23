@@ -7,7 +7,6 @@ var config = require('./config.json');
 var fs = require('fs');
 
 var del;
-var delegateMonitor = {};
 
 /**
  * Save or load delegate in monitor
@@ -23,7 +22,7 @@ var loadDelegateMonitor = function () {
     }
 };
 
-delegateMonitor = loadDelegateMonitor();
+var delegateMonitor = loadDelegateMonitor();
 
 /**
  *
@@ -188,10 +187,14 @@ exports.monitoring = function (command, delegate, fromId){
                     // check if is already in
                         isWatching(delegate).then(function (res) {
                             //if is in --> the watch is already enabled
-                            log.debug("monitoring func: ", "is in, already enabled");
+                            reject("Warning, the watching on this delegate has been already activated")
                         }, function (err) {
                             //if is not in --> enable the watch
                             log.debug("monitoring func: ", "is not in, enable");
+                            console.log(delegateMonitor);
+                            delegateMonitor [delegate] = fromId;
+                            saveDelegateMonitor ();
+                            resolve("The watching has been activated for: " + delegate);
                         })
                 } else {
                     log.debug("monitoring func: ", "command stop");
