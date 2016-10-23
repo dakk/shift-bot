@@ -5,10 +5,15 @@ var log = require ('./log');
 var request = require ('request');
 var config = require('./config.json');
 var fs = require('fs');
+var TelegramBot = require('node-telegram-bot-api');
+
+var bot = new TelegramBot (config.telegram.token, {polling: true});
 
 var del;
+var delegateList = [];
+var alerted = {};
 var alive = {};
-var stats2 = {};
+
 
 /**
  * Save or load delegate in monitor
@@ -250,31 +255,60 @@ exports.monitoring = function (command, delegate, fromId){
 }
 
 exports.checkBlocks = function() {
-    console.log("Checking blocks");
-    request('http://' + config.node + '/api/blocks?limit=100&orderBy=height:desc', function (error, response, body) {
+    // blocks scheduler for alerts
+    request('http://' + config.node + '/api/delegates/?limit=101&offset=0&orderBy=rate:asc', function (error, response, body) {
+        // getting all delegates
         if (!error && response.statusCode == 200) {
-            var data = JSON.parse(body);
-            request('http://' + config.node + '/api/blocks?limit=100&offset=100&orderBy=height:desc', function (error, response, body) {
+            var res = JSON.parse(body);
+            for (var i = 0; i < res.delegates.length; i++) {
+                // check if the delegate is in monitoring mode
+                if (res.delegates[i].username in delegateMonitor) {
+                    // if is in monitoring add to delegateList var
+                    delegateList.push(res.delegates[i]);
+                }
+            }
+            // checking blocks
+            request('http://' + config.node + '/api/blocks?limit=100&orderBy=height:desc', function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    var data2 = JSON.parse(body);
-                    console.log(data2);
-                    data.blocks = data.blocks.concat (data2.blocks);
-
-                    alive = {};
-                    for (var i = 0; i < data.blocks.length; i++) {
-                        alive [data.blocks[i].generatorId] = true;
-                        stats2.notalive = 0;
-                        for (var i = 0; i < delegateList2.length; i++) {
-
+                    var data = JSON.parse(body);
+                    // checking blocks shifting by 100
+                    request('http://' + config.node + '/api/blocks?limit=100&offset=100&orderBy=height:desc', function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            var data2 = JSON.parse(body);
+                            data.blocks = data.blocks.concat(data2.blocks);
+                            alive = {};
+                            for (var i = 0; i < data.blocks.length; i++) {
+                                alive [data.blocks[i].generatorId] = true;
+                            }
+                            for (var i = 0; i < delegateList.length; i++) {
+                                if (! (delegateList[i].address in alive)) {
+                                    console.log("here");
+                                    alive [delegateList[i].address] = false;
+                                    if (! (delegateList[i].address in alerted))
+                                        alerted [delegateList[i].address] = 1;
+                                    else
+                                        alerted [delegateList[i].address] += 1;
+                                    if (alerted [delegateList[i].address] == 1 || alerted [delegateList[i].address] % 180 == 0) {
+                                        if (delegateList[i].username in delegateMonitor) {
+                                            for (var j = 0; j < delegateMonitor [delegateList[i].username].length; j++)
+                                                console.log("bot sending message");
+                                                bot.sendMessage (delegateMonitor [delegateList[i].username][j], 'Warning! The delegate "' + delegateList[i].username + ' is in red state.');
+                                        }
+                                    }
+                                } else {
+                                    delete alerted [delegateList[i].address];
+                                }
+                            }
+                        } else {
+                            console.log("Something wrong with get blocks API, second step");
                         }
-                    }
-
+                    });
                 } else {
-
+                    console.log("Something wrong with get blocks API, first step");
                 }
             });
         } else {
-
+            console.log("Something wrong with get delegates");
         }
     });
-}
+};

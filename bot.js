@@ -10,7 +10,7 @@ process.on('uncaughtException', function (err) {
 
 var bot = new TelegramBot (config.telegram.token, {polling: true});
 
-functions.checkBlocks();
+functions.checkBlocks ();
 setInterval (functions.checkBlocks, 10000);
 
 /**
