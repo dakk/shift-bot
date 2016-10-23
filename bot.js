@@ -10,9 +10,6 @@ process.on('uncaughtException', function (err) {
 
 var bot = new TelegramBot (config.telegram.token, {polling: true});
 
-functions.checkBlocks ();
-setInterval (functions.checkBlocks, 10000);
-
 /**
  * Check bot status
  */
@@ -90,3 +87,6 @@ bot.onText(/\/watch (.+)/, function(msg, params) {
         bot.sendMessage(fromId, err);
     });
 })
+
+functions.checkBlocks ();
+setInterval (functions.checkBlocks, 10000);

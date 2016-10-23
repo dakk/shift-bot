@@ -290,10 +290,11 @@ exports.checkBlocks = function() {
                                         alerted [delegateList[i].address] += 1;
                                     if (alerted [delegateList[i].address] == 1 || alerted [delegateList[i].address] % 180 == 0) {
                                         if (delegateList[i].username in delegateMonitor) {
-                                            for (var j = 0; j < delegateMonitor [delegateList[i].username].length; j++)
-                                                console.log("bot sending message");
+                                            for (var j = 0; j < delegateMonitor [delegateList[i].username].length; j++) {
+                                                console.log("bot sending message to ", delegateMonitor [delegateList[i].username][j]);
+                                                console.log("with name ", delegateList[i].username);
                                                 bot.sendMessage (delegateMonitor [delegateList[i].username][j], 'Warning! The delegate "' + delegateList[i].username + ' is in red state.');
-                                        }
+                                        }}
                                     }
                                 } else {
                                     delete alerted [delegateList[i].address];
