@@ -86,7 +86,18 @@ bot.onText(/\/watch (.+)/, function(msg, params) {
         console.log(err);
         bot.sendMessage(fromId, err);
     });
-})
+});
 
-functions.checkBlocks ();
-setInterval (functions.checkBlocks, 10000);
+/**
+ * List watching list
+ */
+
+/**
+ * List votes received
+ */
+
+/**
+ * List votes made
+ */
+
+
