@@ -2,7 +2,6 @@ var config = require('./config.json');
 var log = require('./log');
 var morgan = require('morgan');
 var functions = require('./functions');
-//var monitor = require('./monitor.json');
 var TelegramBot = require('node-telegram-bot-api');
 
 process.on('uncaughtException', function (err) {
@@ -10,6 +9,9 @@ process.on('uncaughtException', function (err) {
 });
 
 var bot = new TelegramBot (config.telegram.token, {polling: true});
+
+functions.checkBlocks();
+setInterval (functions.checkBlocks, 10000);
 
 /**
  * Check bot status

@@ -7,12 +7,21 @@ var config = require('./config.json');
 var fs = require('fs');
 
 var del;
+var alive = {};
+var stats2 = {};
 
 /**
  * Save or load delegate in monitor
  */
 var saveDelegateMonitor = function () {
-    fs.writeFile('monitor.json', JSON.stringify (delegateMonitor), function (err,data) {});
+    return new Promise(function (resolve, reject) {
+        fs.writeFile('monitor.json', JSON.stringify (delegateMonitor), function (err,data) {
+            if(!err)
+                resolve(true);
+            else
+                reject("Something wrong saving the delegate data");
+        });
+    })
 };
 var loadDelegateMonitor = function () {
     try {
@@ -186,25 +195,48 @@ exports.monitoring = function (command, delegate, fromId){
                     log.debug("monitoring func: ", "command start");
                     // check if is already in
                         isWatching(delegate).then(function (res) {
-                            //if is in --> the watch is already enabled
-                            reject("Warning, the watching on this delegate has been already activated")
+                            //if is in --> check if is asked from same chatId
+                            if(delegateMonitor[delegate].indexOf (fromId) != -1){
+                                // from same chat id
+                                reject("Waching on " + delegate + " already activated");
+                            } else {
+                                // different chat id, so adding it to watching
+                                delegateMonitor [delegate].push (fromId);
+                                saveDelegateMonitor().then(function (res) {
+                                    resolve("The watching has been activated for: " + delegate);
+                                }, function (err) {
+                                    reject(err);
+                                })
+                            }
                         }, function (err) {
                             //if is not in --> enable the watch
-                            log.debug("monitoring func: ", "is not in, enable");
-                            console.log(delegateMonitor);
-                            delegateMonitor [delegate] = fromId;
-                            saveDelegateMonitor ();
-                            resolve("The watching has been activated for: " + delegate);
+                            delegateMonitor [delegate] = [fromId];
+                            saveDelegateMonitor().then(function (res) {
+                                resolve("The watching has been activated for: " + delegate);
+                            }, function (err) {
+                                reject(err);
+                            })
                         })
                 } else {
                     log.debug("monitoring func: ", "command stop");
                     // check if is already in
                     isWatching(delegate).then(function (res) {
-                        //if is in --> stop the watch
-                        log.debug("monitoring func: ", "is in stopping");
+                        // check chat id
+                        if( (i = (delegateMonitor[delegate].indexOf (fromId))) != -1){
+                            // from same chat id
+                            delegateMonitor[delegate].splice (i, 1);
+                            saveDelegateMonitor().then(function (res) {
+                                resolve("The monitoring for " + delegate + " has been stopped");
+                            }, function (err) {
+                                reject(err);
+                            })
+                        } else {
+                            // different chat id, so adding it to watching
+                            reject("The monitoring for " + delegate + " has never been activated");
+                        }
                     }, function (err) {
                         //if is not in --> watch has been never activated
-                        log.debug("monitoring func: ", "watch has been never activated");
+                        reject("The monitoring for " + delegate + " has never been activated");
                     })
                 }
             }, function (err) {
@@ -213,6 +245,36 @@ exports.monitoring = function (command, delegate, fromId){
         } else {
             log.debug("monitoring func: ", "command rejected");
             reject("Command rejected.\nYou can only start or stop monitoring your node.")
+        }
+    });
+}
+
+exports.checkBlocks = function() {
+    console.log("Checking blocks");
+    request('http://' + config.node + '/api/blocks?limit=100&orderBy=height:desc', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var data = JSON.parse(body);
+            request('http://' + config.node + '/api/blocks?limit=100&offset=100&orderBy=height:desc', function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var data2 = JSON.parse(body);
+                    console.log(data2);
+                    data.blocks = data.blocks.concat (data2.blocks);
+
+                    alive = {};
+                    for (var i = 0; i < data.blocks.length; i++) {
+                        alive [data.blocks[i].generatorId] = true;
+                        stats2.notalive = 0;
+                        for (var i = 0; i < delegateList2.length; i++) {
+
+                        }
+                    }
+
+                } else {
+
+                }
+            });
+        } else {
+
         }
     });
 }
