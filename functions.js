@@ -260,6 +260,7 @@ exports.checkBlocks = function() {
     request('http://' + config.node + '/api/delegates/?limit=101&offset=0&orderBy=rate:asc', function (error, response, body) {
         // getting all delegates
         if (!error && response.statusCode == 200) {
+            delegateList = [];
             var res = JSON.parse(body);
             for (var i = 0; i < res.delegates.length; i++) {
                 // check if the delegate is in monitoring mode
@@ -289,6 +290,7 @@ exports.checkBlocks = function() {
                                         alerted [delegateList[i].address] = 1;
                                     else
                                         alerted [delegateList[i].address] += 1;
+
                                     if (alerted [delegateList[i].address] == 1 || alerted [delegateList[i].address] % 180 == 0) {
                                         if (delegateList[i].username in delegateMonitor) {
                                             for (var j = 0; j < delegateMonitor [delegateList[i].username].length; j++) {
@@ -299,6 +301,7 @@ exports.checkBlocks = function() {
                                         }}
                                     }
                                 } else {
+                                    console.log ('deleting alerted', (delegateList[i].address in alive), alive);
                                     delete alerted [delegateList[i].address];
                                 }
                             }
