@@ -66,6 +66,7 @@ var isDelegate = function (delegate) {
                 for (var i = 0; i < delegates.delegates.length; i++) {
                     if (delegate.indexOf (delegates.delegates[i].username) != -1) {
                         del = delegates.delegates[i];
+
                         resolve(true);
                     }
                 }
@@ -270,6 +271,7 @@ var checkBlocks = function() {
             // checking blocks
             request('http://' + config.node + '/api/blocks?limit=100&orderBy=height:desc', function (error, response, body) {
                 if (!error && response.statusCode == 200) {
+                    console.log(alerted);
                     var data = JSON.parse(body);
                     // checking blocks shifting by 100
                     request('http://' + config.node + '/api/blocks?limit=100&offset=100&orderBy=height:desc', function (error, response, body) {
@@ -282,7 +284,6 @@ var checkBlocks = function() {
                             }
                             for (var i = 0; i < delegateList.length; i++) {
                                 if (! (delegateList[i].address in alive)) {
-                                    console.log("here");
                                     alive [delegateList[i].address] = false;
                                     if (! (delegateList[i].address in alerted))
                                         alerted [delegateList[i].address] = 1;
@@ -291,6 +292,7 @@ var checkBlocks = function() {
                                     if (alerted [delegateList[i].address] == 1 || alerted [delegateList[i].address] % 180 == 0) {
                                         if (delegateList[i].username in delegateMonitor) {
                                             for (var j = 0; j < delegateMonitor [delegateList[i].username].length; j++) {
+                                                console.log(alerted);
                                                 console.log("bot sending message to ", delegateMonitor [delegateList[i].username][j]);
                                                 console.log("with name ", delegateList[i].username);
                                                 bot.sendMessage (delegateMonitor [delegateList[i].username][j], 'Warning! The delegate "' + delegateList[i].username + ' is in red state.');
@@ -314,5 +316,7 @@ var checkBlocks = function() {
     });
 };
 
-checkBlocks ();
-setInterval (checkBlocks, 10000);
+exports.startLoop = function () {
+    checkBlocks ();
+    setInterval (checkBlocks, 10000);
+};

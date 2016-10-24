@@ -10,6 +10,8 @@ process.on('uncaughtException', function (err) {
 
 var bot = new TelegramBot (config.telegram.token, {polling: true});
 
+
+
 /**
  * Check bot status
  */
@@ -92,12 +94,16 @@ bot.onText(/\/watch (.+)/, function(msg, params) {
  * List watching list
  */
 
+
+
 /**
  * List votes received
  */
+
 
 /**
  * List votes made
  */
 
 
+functions.startLoop();
