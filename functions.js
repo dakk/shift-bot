@@ -255,7 +255,7 @@ exports.monitoring = function (command, delegate, fromId){
     });
 }
 
-var checkBlocks = function() {
+exports.checkBlocks = function() {
     // blocks scheduler for alerts
     request('http://' + config.node + '/api/delegates/?limit=101&offset=0&orderBy=rate:asc', function (error, response, body) {
         // getting all delegates
@@ -314,9 +314,4 @@ var checkBlocks = function() {
             console.log("Something wrong with get delegates");
         }
     });
-};
-
-exports.startLoop = function () {
-    checkBlocks ();
-    setInterval (checkBlocks, 10000);
 };
