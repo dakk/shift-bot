@@ -106,4 +106,6 @@ bot.onText(/\/watch (.+)/, function(msg, params) {
  */
 
 
-functions.startLoop();
+
+functions.checkBlocks ();
+setInterval (checkBlocks, 10000);
